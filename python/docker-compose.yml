@@ -1,0 +1,66 @@
+version: '3'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"  # RabbitMQ default port
+      - "15672:15672"  # RabbitMQ management UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - rabbitmq_network
+
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile.consumer
+    depends_on:
+      - rabbitmq
+    networks:
+      - rabbitmq_network
+
+  producer:
+    build:
+      context: .
+      dockerfile: Dockerfile.producer
+    depends_on:
+      - rabbitmq
+    networks:
+      - rabbitmq_network
+
+  # start:
+  #   build:
+  #     context: .
+  #   depends_on:
+  #     - rabbitmq
+  #     - consumer
+  #     - producer
+  #   networks:
+  #     - rabbitmq_network
+
+networks:
+  rabbitmq_network:
+    driver: bridge
+
+
+# docker-compose run --service-ports producer -d
+# docker-compose run --service-ports consumer -d
+# docker-compose run --service-ports rabbitmq -d
+
+# docker network create mynetwork
+# e83722940d5d84eccb1cdd19aafd94fd6040284bd9bcd29df474aa6dd0fd4f92
+
+# docker run -d --hostname rmq --name rabbitMQ -p 8089:15672 -p 5672:5672 rabbitmq:3-management
+# docker run -d -p 5672:5672 -p 15672:15672 --hostname my-rabbit --name rabbitMQ rabbitmq:3
+
+# docker build -t mateus2k2/consumer:1.0 .
+# docker run -it --name consumerMQ mateus2k2/consumer:1.0
+
+# docker build -t mateus2k2/producer:1.0 .
+# docker run -it --name producerMQ --network mynetwork mateus2k2/producer:1.0
+
+
+# docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' rabbitMQ
+
+# curl 172.17.0.2:15672
