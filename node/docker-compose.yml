@@ -79,10 +79,10 @@ services:
 #----------------------------------------------------------------------------
 
   consumer:
-    build:
-      context: src/consumer
-      dockerfile: Dockerfile
-    # image: mateus2k2/tp5sd-consumer:latest
+    # build:
+    #   context: src/consumer
+    #   dockerfile: Dockerfile
+    image: mateus2k2/tp5sd-consumer:latest
     env_file:
       - .env
     environment:
@@ -102,10 +102,10 @@ services:
 #----------------------------------------------------------------------------
 
   producer:
-    build:
-      context: src/producer
-      dockerfile: Dockerfile
-    # image: mateus2k2/tp5sd-producer:latest
+    # build:
+    #   context: src/producer
+    #   dockerfile: Dockerfile
+    image: mateus2k2/tp5sd-producer:latest
     env_file:
       - .env
     environment:
