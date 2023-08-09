@@ -32,7 +32,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     restart: on-failure
     healthcheck:
-      # test: ["CMD-SHELL", "/bin/kafka-topics --bootstrap-server kafka:9092 --topic ${TOPIC_NAME} --describe"]
+      # test: ["CMD", "/bin/kafka-topics --bootstrap-server localhost:9092 --topic ${TOPIC_NAME} --describe"]
       test: ["CMD", "nc", "-vz", "localhost", "9092"]
       interval: 3s
       timeout: 3s
@@ -70,7 +70,7 @@ services:
       /bin/kafka-topics --bootstrap-server kafka:9092 --list
 
       echo -e 'Creating kafka topics'
-      /bin/kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic teste --replication-factor 1 --partitions 1
+      /bin/kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic ${TOPIC_NAME} --replication-factor 1 --partitions 1
 
       echo -e 'Successfully created the following topics:'
       /bin/kafka-topics --bootstrap-server kafka:9092 --list
@@ -127,8 +127,3 @@ networks:
     driver: bridge
 
 #----------------------------------------------------------------------------
-
-
-
-
-# /bin/kafka-topics --bootstrap-server kafka:9092 --topic test --describe
