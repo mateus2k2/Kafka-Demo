@@ -16,3 +16,4 @@ COPY producer.js .
 CMD ["node", "producer.js"]
 # CMD ["bash"]
 # CMD ["node"]
+

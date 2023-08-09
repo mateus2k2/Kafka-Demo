@@ -62,3 +62,4 @@ producer.on('event.error', (err) => {
 })
 
 producer.setPollInterval(100);
+

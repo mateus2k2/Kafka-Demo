@@ -16,3 +16,5 @@ COPY consumer.js .
 CMD ["node", "consumer.js"]
 # CMD ["bash"]
 # CMD ["node"]
+
+

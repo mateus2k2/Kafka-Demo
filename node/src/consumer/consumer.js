@@ -52,3 +52,5 @@ const setupAndConnectConsumer = () => {
 };
 
 setupAndConnectConsumer();
+
+
