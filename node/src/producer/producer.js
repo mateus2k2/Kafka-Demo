@@ -1,47 +1,44 @@
-require('dotenv').config();
-const amqp = require('amqplib');
+import Kafka from 'node-rdkafka';
+import dotenv from 'dotenv';
 
+dotenv.config();
 
-let {
-    RABBITMQ_HOST,
-    RABBITMQ_PORT,
-    RABBITMQ_USERNAME,
-    RABBITMQ_PASSWORD,
-    QUEUE_NAME,
-    MESSAGE_SIZE,
-    MESSAGES_PER_SECOND,
+const {
+  KAFKA_BROKER = 'localhost:29092',
+  TOPIC_NAME = 'test',
+  MESSAGE_SIZE = 16,
+  MESSAGES_PER_SECOND = 1,
 } = process.env;
 
-const size = process.argv[2]; 
-const rate = process.argv[3]; 
-if(size && rate){
-    MESSAGE_SIZE = size;
-    MESSAGES_PER_SECOND = rate;
-}
+console.log('KAFKA_BROKER', KAFKA_BROKER);
+console.log('TOPIC_NAME', TOPIC_NAME);
+console.log('MESSAGE_SIZE', MESSAGE_SIZE);
+console.log('MESSAGES_PER_SECOND', MESSAGES_PER_SECOND);
 
 const interval = Math.floor(1000 / Number(MESSAGES_PER_SECOND));
 
-async function connect() {
-    try {
-        const connection = await amqp.connect({
-            hostname: RABBITMQ_HOST,
-            port: RABBITMQ_PORT,
-            username: RABBITMQ_USERNAME,
-            password: RABBITMQ_PASSWORD,
-        });
+const stream = Kafka.Producer.createWriteStream({
+  'metadata.broker.list': KAFKA_BROKER
+}, {}, {
+  topic: TOPIC_NAME
+});
 
-        const channel = await connection.createChannel();
-        await channel.assertQueue(QUEUE_NAME);
+stream.on('error', (err) => {
+  console.error('Error in our kafka stream');
+  console.error(err);
+});
 
-        setInterval(() => {
-            const message = [...Array(Number(MESSAGE_SIZE))].map(() => Math.random().toString(36).charAt(2)).join('');
-            channel.sendToQueue(QUEUE_NAME, Buffer.from(message));
-            console.log('Message sent:', message);
-        }, interval);
-    } catch (error) {
-        console.log("CONECTION ERROR")
-        setTimeout(connect, 2000);
-    }
+function queueRandomMessage() {
+  const message = [...Array(Number(MESSAGE_SIZE))].map(() => Math.random().toString(36).charAt(2)).join('');
+  const success = stream.write(Buffer.from(message));     
+  
+  if (success) {
+    console.log(`message queued (${message})`);
+  } else {
+    console.log('Too many messages in the queue already..');
+  }
 }
 
-connect();
+setInterval(() => {
+  queueRandomMessage();
+}, interval);
