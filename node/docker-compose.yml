@@ -82,7 +82,7 @@ services:
     build:
       context: src/consumer
       dockerfile: Dockerfile
-    # image: mateus2k2/kafka_sd-consumer
+    # image: mateus2k2/tp5sd-consumer:latest
     env_file:
       - .env
     environment:
@@ -105,7 +105,7 @@ services:
     build:
       context: src/producer
       dockerfile: Dockerfile
-    # image: mateus2k2/kafka_sd-producer
+    # image: mateus2k2/tp5sd-producer:latest
     env_file:
       - .env
     environment:

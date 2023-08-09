@@ -2,51 +2,30 @@ https://github.com/github/gitignore/blob/main/Node.gitignore
 https://www.youtube.com/watch?v=EiDLKECLcZw
 
 
-fazer GUI do kafka
-
-
-GERAL
-
-docker run -d --hostname rmq --name rabbitMQ -p 15672:15672 -p 5672:5672 rabbitmq:3-management
-
-docker build -t mateus2k2/consumer:1.0 .
-docker run -it --name consumerMQ mateus2k2/consumer:1.0
-
-docker build -t mateus2k2/producer:1.0 .
-docker run -it --name producerMQ mateus2k2/producer:1.0
-
-
-
-
-
-
+ATUALIZAR BASE
 descomentar para rodar local
 excluir o conteiner do compose e as imagens
 
 docker-compose up
 docker-compose build
 
-docker tag rabbitmq_sd-consumer:latest mateus2k2/rabbitmq_sd-consumer:latest
-docker tag rabbitmq_sd-producer:latest mateus2k2/rabbitmq_sd-producer:latest
+docker tag tp5sd-consumer:latest mateus2k2/tp5sd-consumer:latest
+docker tag tp5sd-producer:latest mateus2k2/tp5sd-producer:latest
 
-docker push mateus2k2/rabbitmq_sd-consumer:latest
-docker push mateus2k2/rabbitmq_sd-producer:latest
-
-
+docker push mateus2k2/tp5sd-consumer:latest
+docker push mateus2k2/tp5sd-producer:latest
 
 
 
+MOODLE
+GRUPO
+Guilherme Salim
+Mateus Filipe
 
 
-
-# descomentar para rodar local
-# excluir o conteiner do compose e as imagens
-
-# docker-compose up
-# docker-compose build
-
-# docker tag rabbitmq_sd-consumer:latest mateus2k2/rabbitmq_sd-consumer:latest
-# docker tag rabbitmq_sd-producer:latest mateus2k2/rabbitmq_sd-producer:latest
-
-# docker push mateus2k2/rabbitmq_sd-consumer:latest
-# docker push mateus2k2/rabbitmq_sd-producer:latest
+IMAGENS
+mateus2k2/tp5sd-producer:latest   # Criado pelo grupo com código em Node
+mateus2k2/tp5sd-consumer:latest   # Criado pelo grupo com código em Node
+confluentinc/cp-kafka:latest      # Pronto para executar kafka
+obsidiandynamics/kafdrop          # GUI da kafka
+confluentinc/cp-zookeeper:latest  # Zookeeper

@@ -38,7 +38,7 @@ const setupAndConnectConsumer = () => {
   consumer.on('ready', () => {
     console.log('consumer ready..')
 
-    setInterval(printMessagesPerSecond, 1000); // Print every second
+    setInterval(printMessagesPerSecond, 1000);
 
     consumer.subscribe([TOPIC_NAME]);
     consumer.consume();
