@@ -17,20 +17,23 @@ console.log('MESSAGES_PER_SECOND', MESSAGES_PER_SECOND);
 
 const interval = Math.floor(1000 / Number(MESSAGES_PER_SECOND));
 
-const stream = Kafka.Producer.createWriteStream({
-  'metadata.broker.list': KAFKA_BROKER
-}, {}, {
-  topic: TOPIC_NAME
+const producer = new Kafka.Producer({
+  'metadata.broker.list': KAFKA_BROKER,
+  'dr_cb': true
 });
 
-stream.on('error', (err) => {
-  console.error('Error in our kafka stream');
-  console.error(err);
-});
+producer.connect();
 
 function queueRandomMessage() {
   const message = [...Array(Number(MESSAGE_SIZE))].map(() => Math.random().toString(36).charAt(2)).join('');
-  const success = stream.write(Buffer.from(message));     
+  
+  const success = producer.produce(
+    TOPIC_NAME,
+    null,
+    Buffer.from(message),
+    'Stormwind',
+    Date.now(),
+  );    
   
   if (success) {
     console.log(`message queued (${message})`);
@@ -39,6 +42,23 @@ function queueRandomMessage() {
   }
 }
 
-setInterval(() => {
-  queueRandomMessage();
-}, interval);
+producer.on('ready', () => {
+  try {
+
+    setInterval(() => {
+      queueRandomMessage();
+    }, interval);
+
+    
+  } catch (err) {
+    console.error('A problem occurred when sending our message');
+    console.error(err);
+  }
+});
+
+producer.on('event.error', (err) => {
+  console.error('Error from producer');
+  console.error(err);
+})
+
+producer.setPollInterval(100);

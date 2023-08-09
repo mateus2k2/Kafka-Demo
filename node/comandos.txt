@@ -1,3 +1,10 @@
+https://github.com/github/gitignore/blob/main/Node.gitignore
+https://www.youtube.com/watch?v=EiDLKECLcZw
+
+
+fazer GUI do kafka
+
+
 GERAL
 
 docker run -d --hostname rmq --name rabbitMQ -p 15672:15672 -p 5672:5672 rabbitmq:3-management
@@ -31,61 +38,6 @@ docker push mateus2k2/rabbitmq_sd-producer:latest
 
 
 
-
-
-
-
-version: '3'
-name: 'rabbitmq_sd'
-services:
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-    networks:
-      - rabbitmq_network
-
-  consumer:
-    # build:
-    #   context: consumer
-    #   dockerfile: Dockerfile
-    image: mateus2k2/rabbitmq_sd-consumer
-    env_file:
-      - .env
-    environment:
-      - MESSAGE_SIZE=${MESSAGE_SIZE}
-      - MESSAGES_PER_SECOND=${MESSAGES_PER_SECOND}
-    depends_on:
-      - rabbitmq
-    networks:
-      - rabbitmq_network
-    stdin_open: true 
-    tty: true        
-
-  producer:
-    # build:
-    #   context: producer
-    #   dockerfile: Dockerfile
-    image: mateus2k2/rabbitmq_sd-producer
-    env_file:
-      - .env
-    environment:
-      - MESSAGE_SIZE=${MESSAGE_SIZE}
-      - MESSAGES_PER_SECOND=${MESSAGES_PER_SECOND}
-    depends_on:
-      - rabbitmq
-    networks:
-      - rabbitmq_network
-    stdin_open: true 
-    tty: true
-
-networks:
-  rabbitmq_network:
-    driver: bridge
 
 # descomentar para rodar local
 # excluir o conteiner do compose e as imagens

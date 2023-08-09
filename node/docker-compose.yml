@@ -1,6 +1,7 @@
 version: '2'
 name: 'TP5SD'
 services:
+#----------------------------------------------------------------------------
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     networks:
@@ -8,8 +9,11 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    restart: on-failure
     stdin_open: true 
     tty: true
+
+#----------------------------------------------------------------------------
 
   kafka:
     image: confluentinc/cp-kafka:latest
@@ -26,12 +30,57 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    restart: on-failure
+    healthcheck:
+      # test: ["CMD-SHELL", "/bin/kafka-topics --bootstrap-server kafka:9092 --topic ${TOPIC_NAME} --describe"]
+      test: ["CMD", "nc", "-vz", "localhost", "9092"]
+      interval: 3s
+      timeout: 3s
+      retries: 150
     stdin_open: true 
     tty: true
 
+#----------------------------------------------------------------------------
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    networks:
+      - kafka_network
+    restart: "no"
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "kafka:9092"
+      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
+    depends_on:
+      - "kafka"
+
+#----------------------------------------------------------------------------
+
+  init-kafka:
+    image: confluentinc/cp-kafka:latest
+    networks:
+      - kafka_network
+    depends_on:
+      - kafka
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      /bin/kafka-topics --bootstrap-server kafka:9092 --list
+
+      echo -e 'Creating kafka topics'
+      /bin/kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic teste --replication-factor 1 --partitions 1
+
+      echo -e 'Successfully created the following topics:'
+      /bin/kafka-topics --bootstrap-server kafka:9092 --list
+      "
+
+#----------------------------------------------------------------------------
+
   consumer:
     build:
-      context: consumer
+      context: src/consumer
       dockerfile: Dockerfile
     # image: mateus2k2/kafka_sd-consumer
     env_file:
@@ -40,15 +89,21 @@ services:
       - MESSAGE_SIZE=${MESSAGE_SIZE}
       - MESSAGES_PER_SECOND=${MESSAGES_PER_SECOND}
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
+    # depends_on:
+    #   - kafka
     networks:
       - kafka_network
+    restart: on-failure
     stdin_open: true 
     tty: true        
 
+#----------------------------------------------------------------------------
+
   producer:
     build:
-      context: producer
+      context: src/producer
       dockerfile: Dockerfile
     # image: mateus2k2/kafka_sd-producer
     env_file:
@@ -57,9 +112,13 @@ services:
       - MESSAGE_SIZE=${MESSAGE_SIZE}
       - MESSAGES_PER_SECOND=${MESSAGES_PER_SECOND}
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
+    # depends_on:
+    #   - kafka
     networks:
       - kafka_network
+    restart: on-failure
     stdin_open: true 
     tty: true
 
@@ -67,6 +126,9 @@ networks:
   kafka_network:
     driver: bridge
 
-# Esquema para ficar tentando conectar com o kafka tanto no consumer quanto no producer
-# testar conteiner do consumer e producer
-# fazer GUI do kafka
+#----------------------------------------------------------------------------
+
+
+
+
+# /bin/kafka-topics --bootstrap-server kafka:9092 --topic test --describe
